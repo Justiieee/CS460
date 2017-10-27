@@ -1,4 +1,4 @@
-DROP DATABASE photoshare;
+#DROP DATABASE photoshare;
 CREATE DATABASE photoshare;
 USE photoshare;
 
@@ -15,9 +15,10 @@ CREATE TABLE User (
 );
 
 CREATE TABLE Friendship (
+    fri_id int AUTO_INCREMENT NOT NULL,
     user_id1 int not null,
     user_id2 int not null,
-    PRIMARY KEY (user_id1, user_id2),
+    PRIMARY KEY (fri_id),
     FOREIGN KEY (user_id1) REFERENCES User(user_id) ON DELETE CASCADE,
     FOREIGN KEY (user_id2) REFERENCES User(user_id) ON DELETE CASCADE
 );
@@ -25,7 +26,7 @@ CREATE TABLE Friendship (
 CREATE TABLE Album (
     album_id int AUTO_INCREMENT not null,
     name varchar(40) not null,
-    date_creation TIMESTAMP not null,
+    date_creation varchar(20) not null,
     user_id int not null,
     PRIMARY KEY (album_id),
     FOREIGN KEY (user_id) REFERENCES User(user_id) ON DELETE CASCADE

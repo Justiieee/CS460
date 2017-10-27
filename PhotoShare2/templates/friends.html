@@ -2,19 +2,21 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Friend list</title>
+    <title>Add Friend</title>
 
 </head>
 <body>
         <div class="title">
-            <h1>Here is your friend list:</h1>
-            <form method="post" action="{{ url_for('friend_list') }}">
+            <h1>Add a friend</h1>
+            <form method="post" action="{{ url_for('add_friend') }}">
                 <label for="friends">Enter friends email:</label>
                 <input type="friends_email" name="friends_email" /><br />
-                <input type = "submit" value="Search" />
+                <input type = "submit" value="Add" />
             </form>
         </div>
 </body>
-
+{%if supress%}
+<h1>Already in your friends list! Search for another friend<a href="/friends">Friends</a></h1>
+{% endif %}
 
 </html>

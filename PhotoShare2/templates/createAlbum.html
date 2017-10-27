@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Create Album</title>
+</head>
+<body>
+    <div class="title">
+            <h1>Create an Album</h1>
+            <form method="post" action="{{ url_for('create_album') }}">
+                <label for="album">Album name:</label>
+                <input type="text" name="name" /><br />
+                <label for="album">Date:</label>
+                <input type="text" name="name" /><br />
+                <input type = "submit" value="Add" />
+            </form>
+        </div>
+
+</body>
+{%if not supress%}
+<h1>Already in your friends list! Search for another friend<a href="/friends">Friends</a></h1>
+{% endif %}
+</html>
