@@ -238,6 +238,24 @@ def create_album():
 
 @app.route('/upload', methods=['GET', 'POST'])
 @flask_login.login_required
+def show_album():
+    if request.method == 'POST':
+        try:
+            uid = getUserIdFromEmail(flask_login.current_user.id)
+        except:
+            return flask.redirect(flask.url_for('show_album'))
+        cursor = conn.cursor()
+        print(cursor.execute("SELECT name, date_creation FROM album WHERE user_id = 'uid'"))
+        conn.commit()
+        return render_template('showAlbum.html')
+    else:
+        return render_template('showAlbum.html')
+
+
+
+
+@app.route('/upload', methods=['GET', 'POST'])
+@flask_login.login_required
 def upload_file():
     if request.method == 'POST':
         uid = getUserIdFromEmail(flask_login.current_user.id)
@@ -253,6 +271,7 @@ def upload_file():
     # The method is GET so we return a  HTML form to upload the a photo.
     else:
         return render_template('upload.html')
+
 
 
 

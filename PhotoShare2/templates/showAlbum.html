@@ -4,7 +4,19 @@
     <meta charset="UTF-8">
     <title>Show Album</title>
 </head>
-<body>
-
-</body>
+<body style="font-family:Helvetica;" background="https://68.media.tumblr.com/c9e3514cd7255466bc23cfa8c06f63be/tumblr_inline_n2316gluDV1spxw4r.jpg">
+        <div class="title">
+            <h1 style="text-align:center">Here is your album</h1>
+        </div>
+        <div id="content">
+            <form method="post" action="{{ url_for('show_album') }}">
+                <ul>
+                     <li><a href='/upload'>Upload a photo</a> </li>
+                     <li><a href='/logout'>Logout</a></li>
+                     <li><a href='/friends'>Friends</a></li>
+                     <li><a href='/'>Home</a></li>
+                </ul>
+            </form>
+         </div>
+    </body>
 </html>
