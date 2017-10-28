@@ -4,11 +4,11 @@
     <meta charset="UTF-8">
     <title>Create Album</title>
 </head>
-<body>
+<body style="font-family:Helvetica;" background="https://68.media.tumblr.com/c9e3514cd7255466bc23cfa8c06f63be/tumblr_inline_n2316gluDV1spxw4r.jpg">
     <div class="title">
-            <h1>Create an Album</h1>
+            <h1 style="text-align:center;">Create an Album</h1>
             <form method="post" action="{{ url_for('create_album') }}">
-                <label for="album">Album name:</label>
+                <label for="album" style="align-content: center">Album name:</label>
                 <input type="text" name="name" /><br />
                 <label for="album">Date:</label>
                 <input type="text" name="name" /><br />
@@ -17,7 +17,5 @@
         </div>
 
 </body>
-{%if not supress%}
-<h1>Already in your friends list! Search for another friend<a href="/friends">Friends</a></h1>
-{% endif %}
+
 </html>

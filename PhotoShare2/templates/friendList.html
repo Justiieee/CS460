@@ -2,9 +2,17 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Friends List</title>
+    <title>Friend List</title>
 </head>
-<body>
-    <h1>Here is your friend list:</h1>
+<h1 style="font-family:Helvetica;text-align:center">Here is your friend list:</h1>
+<body style="font-family:Helvetica;" background="https://68.media.tumblr.com/c9e3514cd7255466bc23cfa8c06f63be/tumblr_inline_n2316gluDV1spxw4r.jpg">
+    <div class="title">
+            <form method="post" action="{{ url_for('friend_list') }}">
+                <label for="friends">Enter friends email:</label>
+                <input type="friends_email" name="friends_email" /><br />
+                <input type = "submit" value="Add" />
+            </form>
+        </div>
+
 </body>
 </html>

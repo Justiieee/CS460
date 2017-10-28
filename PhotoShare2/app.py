@@ -171,7 +171,7 @@ def add_friend():
             return render_template('hello.html', name=flask_login.current_user.id, message='Not a user')
 
             #return render_template('hello.html', name=flask_login.current_user.id, message='Search another friend')
-        test1 = isaUser()
+        test1 = isaUser(email)
         if test1:
             cursor = conn.cursor()
             test2 = isaFriend(uid1, uid2)
@@ -191,12 +191,29 @@ def add_friend():
     else:
         return render_template('friends.html')
 
+@app.route('/friendList', methods=['GET', 'POST'])
+@flask_login.login_required
+def friend_list():
+    if request.method == 'POST':
+        try:
+            uid=getUserIdFromEmail(flask_login.current_user.id)
+            print(uid)
+        except:
+            return render_template('friendList', name=flask_login.current_user.id, message='Here is your friend list')
+            #return flask.redirect(flask.url_for('friend_list'))
+        cursor = conn.cursor()
+        print(cursor.execute("SELECT user_id2 FROM Friendship WHERE user_id2='uid'"))
+        conn.commit()
+    else:
+        return render_template('friendList.html')
+
+
 @app.route('/album', methods=['GET', 'POST'])
 @flask_login.login_required
 def create_album():
     if request.method == 'POST':
         try:
-            name = request.form.get('name')
+            aname = request.form.get('name')
             date_creation = request.form.get('date_creation')
             user_id = getUserIdFromEmail(flask_login.current_user.id)
             print(user_id)
@@ -206,19 +223,41 @@ def create_album():
             #return render_template('hello.html', name=flask_login.current_user.id, message='')
             return flask.redirect(flask.url_for('create_album'))
         cursor = conn.cursor()
-        test = isanAlbum()
-        if test==True:
-            print("INSERT INTO Album (name, date_creation, user_id) VALUES ('{0}', '{1}', '{2}')".format(name, date_creation, user_id))
-            cursor.execute("INSERT INTO Album (name, date_creation, user_id) VALUES ('{0}', '{1}', '{2}')".format(name, date_creation, user_id))
+        test = isanAlbum(aname)
+        print(test)
+        if test:
+            print("INSERT INTO Album (name, date_creation, user_id) VALUES ('{0}', '{1}', '{2}')".format(aname, date_creation, user_id))
+            cursor.execute("INSERT INTO Album (name, date_creation, user_id) VALUES ('{0}', '{1}', '{2}')".format(aname, date_creation, user_id))
             conn.commit()
             return render_template('hello.html', name=flask_login.current_user.id, message='Album Created!')
         else:
             return render_template('hello.html', name=flask_login.current_user.id, message='Album Existed')
     else:
-        return render_template("createAlbum.html", supress ='True')
+        return render_template("createAlbum.html")
         #return flask.redirect(flask.url_for('create_album'))
 
+@app.route('/upload', methods=['GET', 'POST'])
+@flask_login.login_required
+def upload_file():
+    if request.method == 'POST':
+        uid = getUserIdFromEmail(flask_login.current_user.id)
+        imgfile = request.files['photo']
+        caption = request.form.get('caption')
+        print(caption)
+        photo_data = base64.standard_b64encode(imgfile.read())
+        cursor = conn.cursor()
+        cursor.execute("INSERT INTO Photo (imgdata, user_id, caption) VALUES ('{0}', '{1}', '{2}' )".format(photo_data, uid, caption))
+        conn.commit()
+        return render_template('hello.html', name=flask_login.current_user.id, message='Photo uploaded!',
+                               photos=getUserPhotos(uid))
+    # The method is GET so we return a  HTML form to upload the a photo.
+    else:
+        return render_template('upload.html')
 
+
+
+
+#small method
 def getUserPhotos(uid):
     cursor = conn.cursor()
     cursor.execute("SELECT imgdata, photo_id, caption FROM Photo WHERE user_id = '{0}'".format(uid))
@@ -235,7 +274,6 @@ def getUserIdFromAlbum(name):
     cursor.execute("SELECT user_id FROM Album WHERE name = '{0}'".format(name))
     return cursor.fetall()
 
-
 def isEmailUnique(email):
     # use this to check if a email has already been registered
     cursor = conn.cursor()
@@ -245,7 +283,7 @@ def isEmailUnique(email):
     else:
         return True
 
-def isaUser():
+def isaUser(email):
     cursor = conn.cursor()
     if cursor.execute("SELECT email FROM User"):
         return True
@@ -259,9 +297,9 @@ def isaFriend(uid1, uid2):
     else:
         return False
 
-def isanAlbum():
+def isanAlbum(aname):
     cursor = conn.cursor()
-    if cursor.execute("SELECT name FROM Album"):
+    if cursor.execute("SELECT name FROM Album WHERE name='aname' "):
         return True
     else:
         return False
@@ -284,23 +322,6 @@ def allowed_file(filename):
 
 
 
-@app.route('/upload', methods=['GET', 'POST'])
-@flask_login.login_required
-def upload_file():
-    if request.method == 'POST':
-        uid = getUserIdFromEmail(flask_login.current_user.id)
-        imgfile = request.files['photo']
-        caption = request.form.get('caption')
-        print(caption)
-        photo_data = base64.standard_b64encode(imgfile.read())
-        cursor = conn.cursor()
-        cursor.execute("INSERT INTO Photo (imgdata, user_id, caption) VALUES ('{0}', '{1}', '{2}' )".format(photo_data, uid, caption))
-        conn.commit()
-        return render_template('hello.html', name=flask_login.current_user.id, message='Photo uploaded!',
-                               photos=getUserPhotos(uid))
-    # The method is GET so we return a  HTML form to upload the a photo.
-    else:
-        return render_template('upload.html')
 
 
 # end photo uploading code
