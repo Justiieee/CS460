@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+{% if message %}
+  <h4>{{message}}!</h4>
+{% endif %}
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Show Comment</title>
+</head>
+<body>
+<div class="title">
+            <h1 style="text-align:center;">See Comment</h1>
+            <form method="post" action="{{ url_for('show_comment') }}">
+                <label for="photo_id">Enter the ID of photo to see comment:</label>
+                <input type="text" name="photo_id" /><br />
+                <input type = "submit" value="See" />
+            </form>
+</div>
+<table width = "400">
+    <tr align="left">
+        <th>Content</th>
+        <th>User ID</th>
+    </tr>
+
+    {% for comment in comments %}
+    <tr align="left">
+        <td>{{ comment[0] }}</td>
+        <td>{{ comment[1] }}</td>
+    </tr>
+    {% endfor %}
+</table>
+
+<li><a href='/'>Home</a></li>
+</body>
+</html>

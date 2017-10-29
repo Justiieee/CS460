@@ -1,4 +1,7 @@
 <!DOCTYPE html>
+{% if message %}
+  <h4>{{message}}!</h4>
+{% endif %}
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -10,11 +13,12 @@
             <form method="post" action="{{ url_for('create_album') }}">
                 <label for="album" style="align-content: center">Album name:</label>
                 <input type="text" name="name" /><br />
-                <label for="album">Date:</label>
-                <input type="text" name="name" /><br />
+                <label for="date_creation">Please enter your date as YYYY-MM-DD:</label>
+                <input type="text" name="date_creation" /><br />
                 <input type = "submit" value="Add" />
             </form>
         </div>
+<p><a href='/showAlbum'>Album List</a></p>
 
 </body>
 

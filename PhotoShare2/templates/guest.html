@@ -5,35 +5,34 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Show Album</title>
+    <title>Guest</title>
 </head>
-<body style="font-family:Helvetica;" background="https://68.media.tumblr.com/c9e3514cd7255466bc23cfa8c06f63be/tumblr_inline_n2316gluDV1spxw4r.jpg">
-
+<body>
 <table width = "400">
     <tr align="left">
-        <th>ID</th>
+        <th>Album ID</th>
         <th>Album Name</th>
         <th>Date of Creation</th>
+        <th>User ID</th>
     </tr>
 
-    {% for album in albums %}
+    {% for allalbum in allalbums %}
     <tr align="left">
-        <td>{{ album[0] }}</td>
-        <td>{{ album[1] }}</td>
-        <td>{{ album[2] }}</td>
+        <td>{{ allalbum[0] }}</td>
+        <td>{{ allalbum[1] }}</td>
+        <td>{{ allalbum[2] }}</td>
+        <td>{{ allalbum[3] }}</td>
     </tr>
     {% endfor %}
 </table>
-<p><a href='/deleteAlbum'>Delete Album by Album ID</a></p>
-    <div class="title">
+<div class="title">
             <h1>Look Photos</h1>
             <form method="post" action="{{ url_for('photo') }}">
                 <label for="album_id">Enter Album ID</label>
                 <input type="text" name="album_id" /><br />
                 <input type = "submit" value="Look" />
             </form>
-    </div>
-
+</div>
 <li><a href='/'>Home</a></li>
 </body>
 </html>

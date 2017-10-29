@@ -1,4 +1,7 @@
 <!DOCTYPE html>
+{% if message %}
+  <h4>{{message}}!</h4>
+{% endif %}
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -14,6 +17,7 @@
                 <input type = "submit" value="Add" />
             </form>
         </div>
+<p><a href='/friendList'>Show Friend List</a></p>
 </body>
 {%if supress%}
 <h1>Already in your friends list! Search for another friend<a href="/friends">Friends</a></h1>

@@ -24,7 +24,7 @@ app.secret_key = 'super secret string'  # Change this!
 
 # These will need to be changed according to your creditionals
 app.config['MYSQL_DATABASE_USER'] = 'root'
-app.config['MYSQL_DATABASE_PASSWORD'] = '960212'
+app.config['MYSQL_DATABASE_PASSWORD'] = '950205aa'
 app.config['MYSQL_DATABASE_DB'] = 'photoshare'
 app.config['MYSQL_DATABASE_HOST'] = 'localhost'
 mysql.init_app(app)
@@ -168,88 +168,80 @@ def add_friend():
         except:
             #print("It is not a user.")
             #return flask.redirect(flask.url_for('add_friend'))
-            return render_template('hello.html', name=flask_login.current_user.id, message='Not a user')
+            return render_template('friends.html', name=flask_login.current_user.id, message='Not a user')
 
             #return render_template('hello.html', name=flask_login.current_user.id, message='Search another friend')
-        test1 = isaUser(email)
-        if test1:
-            cursor = conn.cursor()
-            test2 = isaFriend(uid1, uid2)
-            print(test2)
-            if test2:
-                print("INSERT INTO Friendship (user_id1, user_id2) VALUES ('{0}', '{1}')".format(uid1, uid2))
-                cursor.execute(
-                    "INSERT INTO Friendship (user_id1, user_id2) VALUES ('{0}', '{1}')".format(uid1, uid2))
-                cursor.execute(
-                    "INSERT INTO Friendship (user_id1, user_id2) VALUES ('{0}', '{1}')".format(uid2, uid1))
-                conn.commit()
-                return render_template('hello.html', name=flask_login.current_user.id, message='Friend Added')
-            else:
-                return render_template('hello.html', name=flask_login.current_user.id, message='Already friended. Search for another friend')
+        #test1 = isaUser(email)
+        #if test1:
+        cursor = conn.cursor()
+        test2 = isaFriend(uid1, uid2)
+        print(test2)
+        if not test2:
+            print("INSERT INTO Friendship (user_id1, user_id2) VALUES ('{0}', '{1}')".format(uid1, uid2))
+            cursor.execute(
+                "INSERT INTO Friendship (user_id1, user_id2) VALUES ('{0}', '{1}')".format(uid1, uid2))
+            cursor.execute(
+                "INSERT INTO Friendship (user_id1, user_id2) VALUES ('{0}', '{1}')".format(uid2, uid1))
+            conn.commit()
+            return render_template('hello.html', name=flask_login.current_user.id, message='Friend Added')
         else:
-            return render_template('hello.html', name=flask_login.current_user.id, message='He/She is not a user! Please invite you friend')
+            return render_template('friends.html', name=flask_login.current_user.id, message='Already friended. Search for another friend')
+        #else:
+            #return render_template('hello.html', name=flask_login.current_user.id, message='He/She is not a user! Please invite you friend')
     else:
         return render_template('friends.html')
 
-@app.route('/friendList', methods=['GET', 'POST'])
+@app.route('/friendList', methods=['GET'])
 @flask_login.login_required
 def friend_list():
-    if request.method == 'POST':
-        try:
-            uid=getUserIdFromEmail(flask_login.current_user.id)
-            print(uid)
-        except:
-            return render_template('friendList', name=flask_login.current_user.id, message='Here is your friend list')
-            #return flask.redirect(flask.url_for('friend_list'))
-        cursor = conn.cursor()
-        print(cursor.execute("SELECT user_id2 FROM Friendship WHERE user_id2='uid'"))
-        conn.commit()
-    else:
-        return render_template('friendList.html')
+    uid=getUserIdFromEmail(flask_login.current_user.id)
+    print(uid)
+    friendlist = getUserFriends(uid)
+    print(friendlist)
+    #friendname= getUserNameFromId()
+    #print(friendname)
+    return render_template('friendList.html',message = 'Here is your friendlist', friends = friendlist)
 
 
-@app.route('/album', methods=['GET', 'POST'])
+@app.route('/createAlbum', methods=['GET', 'POST'])
 @flask_login.login_required
 def create_album():
     if request.method == 'POST':
         try:
             aname = request.form.get('name')
             date_creation = request.form.get('date_creation')
-            user_id = getUserIdFromEmail(flask_login.current_user.id)
-            print(user_id)
+            uid = getUserIdFromEmail(flask_login.current_user.id)
+            print(uid)
         except:
-            #print("It is not a user.")
-            #return flask.redirect(flask.url_for('add_friend'))
-            #return render_template('hello.html', name=flask_login.current_user.id, message='')
-            return flask.redirect(flask.url_for('create_album'))
+            return flask.redirect(flask.url_for('createAlbum'))
         cursor = conn.cursor()
-        test = isanAlbum(aname)
+        test = isanAlbum(uid,aname)
         print(test)
-        if test:
-            print("INSERT INTO Album (name, date_creation, user_id) VALUES ('{0}', '{1}', '{2}')".format(aname, date_creation, user_id))
-            cursor.execute("INSERT INTO Album (name, date_creation, user_id) VALUES ('{0}', '{1}', '{2}')".format(aname, date_creation, user_id))
+        if not test:
+            print("INSERT INTO Album (name, date_creation, user_id) VALUES ('{0}', '{1}', '{2}')".format(aname, date_creation, uid))
+            cursor.execute("INSERT INTO Album (name, date_creation, user_id) VALUES ('{0}', '{1}', '{2}')".format(aname, date_creation, uid))
             conn.commit()
             return render_template('hello.html', name=flask_login.current_user.id, message='Album Created!')
         else:
-            return render_template('hello.html', name=flask_login.current_user.id, message='Album Existed')
+            return render_template('createAlbum.html', name=flask_login.current_user.id, message='Album Existed!')
     else:
-        return render_template("createAlbum.html")
-        #return flask.redirect(flask.url_for('create_album'))
+        return render_template("createAlbum.html", supress = 'True')
 
-@app.route('/upload', methods=['GET', 'POST'])
+
+@app.route('/showAlbum', methods=['GET'])
 @flask_login.login_required
 def show_album():
-    if request.method == 'POST':
-        try:
-            uid = getUserIdFromEmail(flask_login.current_user.id)
-        except:
-            return flask.redirect(flask.url_for('show_album'))
-        cursor = conn.cursor()
-        print(cursor.execute("SELECT name, date_creation FROM album WHERE user_id = 'uid'"))
-        conn.commit()
-        return render_template('showAlbum.html')
-    else:
-        return render_template('showAlbum.html')
+    uid = getUserIdFromEmail(flask_login.current_user.id)
+    print(uid)
+    albumlist = getUserAlbum(uid)
+    print(albumlist)
+    return render_template('showAlbum.html', message = 'Here is your albumlist', albums = albumlist)
+
+@app.route('/guest', methods = ['GET'])
+def guest():
+    allalbum = getAllAlbums()
+    print(allalbum)
+    return render_template('guest.html', message = 'Public albums', allalbums = allalbum)
 
 
 
@@ -258,29 +250,148 @@ def show_album():
 @flask_login.login_required
 def upload_file():
     if request.method == 'POST':
-        uid = getUserIdFromEmail(flask_login.current_user.id)
-        imgfile = request.files['photo']
-        caption = request.form.get('caption')
-        print(caption)
-        photo_data = base64.standard_b64encode(imgfile.read())
-        cursor = conn.cursor()
-        cursor.execute("INSERT INTO Photo (imgdata, user_id, caption) VALUES ('{0}', '{1}', '{2}' )".format(photo_data, uid, caption))
-        conn.commit()
-        return render_template('hello.html', name=flask_login.current_user.id, message='Photo uploaded!',
+        try:
+            uid = getUserIdFromEmail(flask_login.current_user.id)
+            imgfile = request.files['photo']
+            caption = request.form.get('caption')
+            aname = request.form.get('album')
+            album_id = getAlbumIdFromAlbumName(aname)
+            photo_data = base64.standard_b64encode(imgfile.read())
+            tag= request.form.get('tag')
+
+        except:
+            return render_template('createAlbum.html', message='You do not have this album. Please create an album')
+        test = isAlbumYourself(uid,album_id)
+        if test:
+            cursor = conn.cursor()
+            cursor.execute("INSERT INTO Photo (imgdata, user_id, caption, album_id) VALUES ('{0}', '{1}', '{2}','{3}' )".format(photo_data, uid, caption, album_id))
+
+            conn.commit()
+            return render_template('hello.html', name=flask_login.current_user.id, message='Photo uploaded!',
                                photos=getUserPhotos(uid))
+        else:
+            return render_template('upload.html', message='You Can Only Upload Photos To Your Own Albums')
     # The method is GET so we return a  HTML form to upload the a photo.
     else:
         return render_template('upload.html')
 
+@app.route('/photo', methods=['GET', 'POST'])
+def photo():
+    if request.method == 'POST':
+        aid = request.form.get('album_id')
+        print(aid)
+        photoList=getPhotoFromAlbumId(aid)
+        return render_template('photo.html', message = 'Here are Photos', photos = photoList)
+    else:
+        return render_template('photo.html')
 
+@app.route('/deletePhoto',methods = ['GET', 'POST'])
+@flask_login.login_required
+def delete_photo():
+    if request.method == 'POST':
+        pid = request.form.get('delete')
+        uid = getUserIdFromEmail(flask_login.current_user.id)
+        print pid
+        test = isPhotoYourself(uid, pid)
+        if test:
+            cursor = conn.cursor()
+            cursor.execute("DELETE FROM Photo WHERE photo_id = '{0}'".format(pid))
+            conn.commit()
+            return render_template('hello.html', message = 'Photo Deleted')
+        else:
+            return render_template('deletePhoto', message = 'You Can Only Delete Your Photos')
+    else:
+        return render_template('deletePhoto.html')
 
+@app.route('/deleteAlbum', methods=['GET', 'POST'])
+@flask_login.login_required
+def delete_album():
+    if request.method == 'POST':
+        aid = request.form.get('delete_album')
+        print aid
+        uid = getUserIdFromEmail(flask_login.current_user.id)
+        test = isAlbumYourself(uid, aid)
+        if test:
+            cursor = conn.cursor()
+            cursor.execute("DELETE FROM Album WHERE album_id = '{0}'".format(aid))
+            conn.commit()
+            return render_template('hello.html', message='Album Deleted')
+        else:
+            return render_template('deleteAlbum', message = 'You Can Only Delete Your Album')
+    else:
+        return render_template('deleteAlbum.html')
 
+@app.route('/comment', methods=['GET', 'POST'])
+def comment():
+    if request.method == 'POST':
+        content = request.form.get('content')
+        date_creation = request.form.get('date_creation')
+        uid = getUserIdFromEmail(flask_login.current_user.id)
+        print uid
+        pid = request.form.get('photo_id')
+        print pid
+        test = isPhotoYourself(uid,pid)
+        print(test)
+        if not test:
+            cursor=conn.cursor()
+            cursor.execute("INSERT INTO Comment (content, date_creation, user_id, photo_id) VALUES ('{0}','{1}', '{2}', '{3}')".format(content, date_creation, uid, pid))
+            conn.commit()
+            return render_template('photo.html', message='Commented successfully')
+        else:
+            return render_template('comment.html', message='You can not comment on your photos')
+    else:
+        return render_template('comment.html')
+
+@app.route('/showComment', methods=['GET', 'POST'])
+def show_comment():
+    if request.method == 'POST':
+        pid = request.form.get('photo_id')
+        commentList = getCommentFromPhotoId(pid)
+        print commentList
+        return render_template('showComment.html', message = 'Here are the comments', comments = commentList)
+    else:
+        return render_template('showComment.html')
+
+@app.route('/like', methods=['GET', 'POST'])
+def liketable():
+    if request.method == 'POST':
+        pid = request.form.get('photo_id')
+        date_creation = request.form.get('date_creation')
+        uid = getUserIdFromEmail(flask_login.current_user.id)
+        print uid
+        print pid
+        test = isLikeExist(uid, pid)
+        if not test:
+            cursor = conn.cursor()
+            cursor.execute("INSERT INTO Liketable (user_id, photo_id, date_creation) VALUES ('{0}','{1}', '{2}')".format(uid, pid,date_creation))
+            conn.commit()
+            return render_template('like.html', message='Like successfully')
+        else:
+            return render_template('like.html', message = 'Already Like')
+
+    else:
+        return render_template('like.html')
 
 #small method
 def getUserPhotos(uid):
     cursor = conn.cursor()
     cursor.execute("SELECT imgdata, photo_id, caption FROM Photo WHERE user_id = '{0}'".format(uid))
     return cursor.fetchall()  # NOTE list of tuples, [(imgdata, pid), ...]
+
+def getPhotoFromAlbumId(aid):
+    cursor = conn.cursor()
+    cursor.execute("SELECT imgdata, photo_id, caption FROM Photo WHERE album_id = '{0}'".format(aid))
+    return cursor.fetchall()
+
+def getUserAlbum(uid):
+    cursor = conn.cursor()
+    cursor.execute("SELECT album_id, name, date_creation FROM Album WHERE user_id ='{0}'".format(uid))
+    return cursor.fetchall()
+
+def getAllAlbums():
+    cursor = conn.cursor()
+    cursor.execute("SELECT * FROM Album")
+    return cursor.fetchall()
 
 
 def getUserIdFromEmail(email):
@@ -291,7 +402,27 @@ def getUserIdFromEmail(email):
 def getUserIdFromAlbum(name):
     cursor = conn.cursor()
     cursor.execute("SELECT user_id FROM Album WHERE name = '{0}'".format(name))
-    return cursor.fetall()
+    return cursor.fetchall()
+
+def getAlbumIdFromAlbumName(aname):
+    cursor=conn.cursor()
+    cursor.execute("SELECT album_id FROM Album WHERE name = '{0}'".format(aname))
+    return cursor.fetchone()[0]
+
+def getUserFriends(uid):
+    cursor = conn.cursor()
+    cursor.execute("SELECT user_id1,fname, lname FROM Friendship,User WHERE user_id1 = user_id and user_id2= '{0}'".format(uid))
+    return cursor.fetchall()
+
+def getUserNameFromId(uid):
+    cursor = conn.cursor()
+    cursor.execute("SELECT fname,lname FROM User WHERE user_id = '{0}'".format(uid))
+    return cursor.fetchall()
+
+def getCommentFromPhotoId(pid):
+    cursor = conn.cursor()
+    cursor.execute("SELECT content, user_id FROM Comment WHERE photo_id = '{0}'".format(pid))
+    return cursor.fetchall()
 
 def isEmailUnique(email):
     # use this to check if a email has already been registered
@@ -302,23 +433,44 @@ def isEmailUnique(email):
     else:
         return True
 
+def isPhotoYourself(uid, pid):
+    cursor = conn.cursor()
+    if cursor.execute("SELECT photo_id FROM Photo WHERE user_id = '{0}' and photo_id = '{1}'".format(uid, pid)):
+        return True
+    else:
+        return False
+
+def isAlbumYourself(uid, aid):
+    cursor = conn.cursor()
+    if cursor.execute("SELECT album_id FROM Album WHERE user_id = '{0}' and album_id = '{1}'".format(uid, aid)):
+        return True
+    else:
+        return False
+
 def isaUser(email):
     cursor = conn.cursor()
-    if cursor.execute("SELECT email FROM User"):
+    if cursor.execute("SELECT email FROM User WHERE email = '{0}'".format(email)):
         return True
     else:
         return False
 
 def isaFriend(uid1, uid2):
     cursor = conn.cursor()
-    if cursor.execute("SELECT user_id1 FROM Friendship WHERE user_id1='uid1'") and cursor.execute("SELECT user_id2 FROM Friendship WHERE user_id2='uid2'"):
+    if cursor.execute("SELECT user_id1 FROM Friendship WHERE user_id1 = '{0}' and user_id2 = '{1}'".format(uid1, uid2)):
         return True
     else:
         return False
 
-def isanAlbum(aname):
+def isanAlbum(uid, aname):
     cursor = conn.cursor()
-    if cursor.execute("SELECT name FROM Album WHERE name='aname' "):
+    if cursor.execute("SELECT album_id FROM Album WHERE user_id = '{0}' and name = '{1}'".format(uid, aname)):
+        return True
+    else:
+        return False
+
+def isLikeExist(uid, pid):
+    cursor = conn.cursor()
+    if cursor.execute("SELECT * FROM Liketable WHERE user_id ='{0}' and photo_id = '{1}'".format(uid, pid)):
         return True
     else:
         return False

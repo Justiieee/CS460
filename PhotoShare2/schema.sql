@@ -9,16 +9,15 @@ CREATE TABLE User (
     email varchar(255) UNIQUE,
     password varchar(255) NOT NULL,
     gender  varchar(6),
-    dob varchar(10),
+    dob date,
     hometown varchar(40),
     CONSTRAINT users_pk PRIMARY KEY (user_id)
 );
 
 CREATE TABLE Friendship (
-    fri_id int AUTO_INCREMENT NOT NULL,
     user_id1 int not null,
     user_id2 int not null,
-    PRIMARY KEY (fri_id),
+    PRIMARY KEY (user_id1, user_id2),
     FOREIGN KEY (user_id1) REFERENCES User(user_id) ON DELETE CASCADE,
     FOREIGN KEY (user_id2) REFERENCES User(user_id) ON DELETE CASCADE
 );
@@ -26,7 +25,7 @@ CREATE TABLE Friendship (
 CREATE TABLE Album (
     album_id int AUTO_INCREMENT not null,
     name varchar(40) not null,
-    date_creation varchar(20) not null,
+    date_creation date not null,
     user_id int not null,
     PRIMARY KEY (album_id),
     FOREIGN KEY (user_id) REFERENCES User(user_id) ON DELETE CASCADE
@@ -35,7 +34,7 @@ CREATE TABLE Album (
 CREATE TABLE Photo (
     photo_id int  AUTO_INCREMENT not null,
     user_id int not null,
-    imgdata blob not null,
+    imgdata longblob not null,
     caption VARCHAR(255),
     album_id int not null,
     INDEX upid_idx (user_id),
@@ -46,7 +45,7 @@ CREATE TABLE Photo (
 CREATE TABLE Comment (
     comment_id int AUTO_INCREMENT not null,
     content varchar(255) not null,
-    date_creation timestamp not null,
+    date_creation date not null,
     user_id int not null,
     photo_id int not null,
     PRIMARY KEY (comment_id),
@@ -57,7 +56,7 @@ CREATE TABLE Comment (
 CREATE TABLE Liketable (
     user_id int not null,
     photo_id int not null,
-    date_creation timestamp not null,
+    date_creation date not null,
     PRIMARY KEY (user_id, photo_id),
     FOREIGN KEY (user_id) REFERENCES User(user_id) ON DELETE CASCADE,
     FOREIGN KEY (photo_id) REFERENCES Photo(photo_id) ON DELETE CASCADE

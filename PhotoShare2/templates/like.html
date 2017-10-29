@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+{% if message %}
+  <h4>{{message}}!</h4>
+{% endif %}
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Like</title>
+</head>
+<body>
+</div>
+    <form method="post" action="/like">
+                <label for="photo_id">Enter the ID of Photo You Like:</label>
+                <input type="text" name="photo_id" required='True' /><br />
+                <lable for="date_creation">date of creation:</lable>
+                <input type="text" name="date_creation" required = 'true' /><br />
+                <input type="submit" value="Like" />
+    </form>
+<li><a href='/'>Home</a></li>
+</body>
+</html>

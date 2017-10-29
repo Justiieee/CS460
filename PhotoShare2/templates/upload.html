@@ -1,4 +1,7 @@
 <!-- author ben lawson (balawson@bu.edu) -->
+{% if message %}
+  <h4>{{message}}!</h4>
+{% endif %}
 <head>
     <title>Upload a photo!</title>
 </head>
@@ -12,6 +15,10 @@
                 <input type="file" name="photo" required='true' /><br />
                 <label for="caption">Please caption:</label>
                 <input type="text" name="caption" required='true' /><br />
+                <label for="album">Album:</label>
+                <input type="text" name="album" required='true' /><br />
+                <label for="tag">Tag:</label>
+                <input type="text" name="tag" required='false' /><br />
                 <input type="submit" value="Upload" />
             </form>
     </body>

@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+{% if message %}
+  <h4>{{message}}!</h4>
+{% endif %}
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>comment</title>
+</head>
+<body>
+</div>
+    <form method="post" action="/comment">
+                <label for="content">Content:</label>
+                <input type="text" name="content" required='true' /><br />
+                <label for="date_creation">Date:</label>
+                <input type="text" name="date_creation" required='true' /><br />
+                <label for="photo_id">Enter the ID of Photo You Comment:</label>
+                <input type="text" name="photo_id" required='True' /><br />
+                <input type="submit" value="Comment" />
+    </form>
+<li><a href='/'>Home</a></li>
+</body>
+</html>

@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>delete album</title>
+</head>
+<body>
+<div class="title">
+            <p style="text-align:center;">Delete Album</p>
+            <form method="post" action="{{ url_for('delete_album') }}">
+                <label for="delete_album">Enter ID Of Album You Want to Delete:</label>
+                <input type="text" name="delete_album" /><br />
+                <input type = "submit" value="Delete" />
+            </form>
+        </div>
+</body>
+</html>

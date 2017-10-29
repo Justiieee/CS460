@@ -1,18 +1,28 @@
 <!DOCTYPE html>
+{% if message %}
+  <h4>{{message}}!</h4>
+{% endif %}
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <title>Friend List</title>
 </head>
-<h1 style="font-family:Helvetica;text-align:center">Here is your friend list:</h1>
 <body style="font-family:Helvetica;" background="https://68.media.tumblr.com/c9e3514cd7255466bc23cfa8c06f63be/tumblr_inline_n2316gluDV1spxw4r.jpg">
-    <div class="title">
-            <form method="post" action="{{ url_for('friend_list') }}">
-                <label for="friends">Enter friends email:</label>
-                <input type="friends_email" name="friends_email" /><br />
-                <input type = "submit" value="Add" />
-            </form>
-        </div>
+<table width = "400">
+    <tr align="left">
+        <th>ID</th>
+        <th>First Name</th>
+        <th>Last Name</th>
+    </tr>
 
+    {% for friend in friends %}
+    <tr align="left">
+        <td>{{ friend[0] }}</td>
+        <td>{{ friend[1] }}</td>
+        <td>{{ friend[2] }}</td>
+    </tr>
+    {% endfor %}
+</table>
+<li><a href='/'>Home</a></li>
 </body>
 </html>
