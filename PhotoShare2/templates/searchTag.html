@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+{% if message %}
+  <h4>{{message}}!</h4>
+{% endif %}
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Search</title>
+</head>
+<body>
+<div class="title">
+            <h1 style="text-align:center;">Search a Tag</h1>
+            <form method="post" action="{{ url_for('searchTag') }}">
+                <label for="hashtag">Enter a Tag:</label>
+                <input type="text" name="hashtag" /><br />
+                <input type = "submit" value="Search" />
+            </form>
+</div>
+
+</body>
+
+<a href='/'>Home</a>
+</html>

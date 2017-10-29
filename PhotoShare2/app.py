@@ -257,7 +257,7 @@ def upload_file():
             aname = request.form.get('album')
             album_id = getAlbumIdFromAlbumName(aname)
             photo_data = base64.standard_b64encode(imgfile.read())
-            tag= request.form.get('tag')
+
 
         except:
             return render_template('createAlbum.html', message='You do not have this album. Please create an album')
@@ -353,6 +353,7 @@ def show_comment():
         return render_template('showComment.html')
 
 @app.route('/like', methods=['GET', 'POST'])
+@flask_login.login_required
 def liketable():
     if request.method == 'POST':
         pid = request.form.get('photo_id')
@@ -371,6 +372,77 @@ def liketable():
 
     else:
         return render_template('like.html')
+
+@app.route('/showLike', methods=['GET','POST'])
+@flask_login.login_required
+def showLike():
+    if request.method == 'POST':
+        pid=request.form.get('photo_id')
+        #count = getCountLike(pid)[1]
+        #print(count)
+        cursor=conn.cursor()
+        likeList=getUserIdForLike(pid)
+        countList=getCountForUserLike(pid)
+        print(countList)
+        print(likeList)
+
+        conn.commit()
+        return render_template('showLike.html', message = 'Here is all likers', liketable = likeList, count = countList)
+    else:
+        return render_template('showLike.html')
+
+
+
+
+
+@app.route('/tag', methods=['GET', 'POST'])
+@flask_login.login_required
+def tag():
+    if request.method == 'POST':
+        hashtag = request.form.get('hashtag')
+        pid = request.form.get('photo_id')
+        test = isPhotoExist(pid)
+        if test:
+            cursor = conn.cursor()
+            #cursor.execute("INSERT INTO Tag(hashtag) VALUES ('{0}')".format(hashtag))
+            cursor.execute("INSERT INTO Associate (photo_id, hashtag) VALUES ('{0}','{1}')".format(pid,hashtag))
+            conn.commit()
+            return render_template('tag.html',message='Tag Added')
+        else:
+            return render_template('tag.html', message='Photo does not exist')
+    else:
+        return render_template('tag.html')
+
+@app.route('/searchTag',methods=['GET', 'POST'])
+def searchTag():
+    if request.method == 'POST':
+        hashtag = request.form.get('hashtag')
+        hashtag = hashtag.split(" ")
+        photoList = []
+        for i in hashtag:
+            test = isTagExist(i)
+            if test:
+                photoList += getAllPhotoFromTag(i)
+        if photoList != []:
+            return render_template('seeAllPhoto.html', message='Here are all photos', photos=photoList)
+        else:
+            return render_template('searchTag.html', message = 'Tag does not exist')
+    else:
+        return render_template('searchTag.html')
+
+
+
+
+@app.route('/seeYourPhoto',methods=['GET', 'POST'])
+def seeYourPhoto():
+    if request.method == 'POST':
+        hashtag = request.form.get('hashtag')
+        uid = getUserIdFromEmail(flask_login.current_user.id)
+        photoList = getYourPhotoFromTag(hashtag, uid)
+        return render_template('seeYourPhoto.html', message = 'Here are your photos for this tag', photos = photoList)
+    else:
+        return render_template('seeAllPhoto.html')
+
 
 #small method
 def getUserPhotos(uid):
@@ -424,6 +496,22 @@ def getCommentFromPhotoId(pid):
     cursor.execute("SELECT content, user_id FROM Comment WHERE photo_id = '{0}'".format(pid))
     return cursor.fetchall()
 
+def getAllTag():
+    cursor=conn.cursor()
+    cursor.execute("SELECT hashtag FROM Tag")
+    return cursor.fetchall()
+
+def getYourPhotoFromTag(hashtag, uid):
+    cursor=conn.cursor()
+    cursor.execute("SELECT imgdata, A.photo_id, caption FROM Photo P, Associate A WHERE P.photo_id = A.photo_id and hashtag = '{0}' and user_id = '{1}'".format(hashtag, uid))
+    return cursor.fetchall()
+
+def getAllPhotoFromTag(hashtag):
+    cursor=conn.cursor()
+    cursor.execute("SELECT imgdata, A.photo_id, caption FROM Photo P, Associate A WHERE P.photo_id = A.photo_id and hashtag = '{0}'".format(hashtag))
+    return cursor.fetchall()
+
+
 def isEmailUnique(email):
     # use this to check if a email has already been registered
     cursor = conn.cursor()
@@ -474,6 +562,34 @@ def isLikeExist(uid, pid):
         return True
     else:
         return False
+
+def isPhotoExist(pid):
+    cursor = conn.cursor()
+    if cursor.execute("SELECT * FROM Photo WHERE photo_id='{0}'".format(pid)):
+        return True
+    else:
+        return False
+def isTagExist(hashtag):
+    cursor=conn.cursor()
+    if cursor.execute("SELECT * FROM Associate WHERE hashtag ='{0}'".format(hashtag)):
+        return True
+    else:
+        return False
+
+def getCountLike(pid):
+    cursor=conn.cursor()
+    cursor.execute("SELECT photo_id, COUNT(user_id) FROM Liketable GROUP BY photo_id")
+    return cursor.fetchall()
+
+def getUserIdForLike(pid):
+    cursor=conn.cursor()
+    cursor.execute("SELECT user_id FROM Liketable WHERE photo_id = '{0}'".format(pid))
+    return cursor.fetchall()
+
+def getCountForUserLike(pid):
+    cursor=conn.cursor()
+    cursor.execute("SELECT COUNT(user_id) FROM Liketable WHERE photo_id = '{0}'".format(pid))
+    return cursor.fetchall()
 # end login code
 
 @app.route('/profile')
@@ -489,7 +605,6 @@ ALLOWED_EXTENSIONS = set(['png', 'jpg', 'jpeg', 'gif'])
 
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1] in ALLOWED_EXTENSIONS
-
 
 
 

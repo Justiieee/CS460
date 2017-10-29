@@ -8,7 +8,7 @@
     <title>Like</title>
 </head>
 <body>
-</div>
+<div class="title">
     <form method="post" action="/like">
                 <label for="photo_id">Enter the ID of Photo You Like:</label>
                 <input type="text" name="photo_id" required='True' /><br />
@@ -16,6 +16,8 @@
                 <input type="text" name="date_creation" required = 'true' /><br />
                 <input type="submit" value="Like" />
     </form>
+</div>
+<a href ='/showLike'>Like List</a>
 <li><a href='/'>Home</a></li>
 </body>
 </html>

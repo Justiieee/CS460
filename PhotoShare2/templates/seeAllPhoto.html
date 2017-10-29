@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+{% if message %}
+  <h4>{{message}}!</h4>
+{% endif %}
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>See All Photo From Tag</title>
+</head>
+<body>
+<div class="title">
+            <h1 style="text-align:center;">See Your Photo</h1>
+            <form method="post" action="{{ url_for('seeYourPhoto') }}">
+                <label for="hashtag">Enter a Tag:</label>
+                <input type="text" name="hashtag" /><br />
+                <input type = "submit" value="Search" />
+            </form>
+</div>
+{% if photos %}
+    <ul>
+    {% for photo in photos %}
+        <li>{{photo[1]}}<br>
+        <li>{{photo[2]}}<br>
+        <img src='data:image/png;base64, {{photo[0]}}'/></li>
+
+    {% endfor %}
+    </ul>
+{% endif %}
+
+<a href='/'>Home</a>
+</body>
+</html>

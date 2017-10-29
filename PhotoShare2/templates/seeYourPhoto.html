@@ -5,10 +5,9 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Photos</title>
+    <title>See Your Photos From Tag</title>
 </head>
 <body>
-<p><a href='/deletePhoto'>Delete Photo By Photo ID</a></p>
 {% if photos %}
     <ul>
     {% for photo in photos %}
@@ -19,12 +18,7 @@
     {% endfor %}
     </ul>
 {% endif %}
-<li><a href='/tag'>Add Tag</a></li>
-<li><a href='/showComment'>See Comment</a></li>
-<li><a href='/comment'>Comment</a></li>
-<li><a href='/like'>Like</a></li>
-<li><a href='/'>Home</a></li>
 
+<a href='/'>Home</a>
 </body>
-
 </html>
