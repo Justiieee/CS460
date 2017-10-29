@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+
+{% if message %}
+  <h2 style="font-family: Helvetica">{{message}}</h2>
+{% endif %}
+
+<head>
+    <meta charset="UTF-8">
+    <title>profile</title>
+</head>
+<body>
+<ul style="font-family: Helvetica">
+    <li><a href='/upload'>Upload a photo</a> </li>
+    <li><a href='/friendList'>FriendList</a></li>
+    <li><a href='/createAlbum'>Albums</a> </li>
+    <li><a href='/userActivity'>User Activity</a></li>
+    <li><a href='/'>Home</a></li>
+    <li><a href='/logout'>Logout</a></li>
+</ul>
+
+</body>
+</html>

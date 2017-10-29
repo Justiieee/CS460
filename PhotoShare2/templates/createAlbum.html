@@ -7,11 +7,11 @@
     <meta charset="UTF-8">
     <title>Create Album</title>
 </head>
-<body style="font-family:Helvetica;" background="https://68.media.tumblr.com/c9e3514cd7255466bc23cfa8c06f63be/tumblr_inline_n2316gluDV1spxw4r.jpg">
+<body style="font-family:Helvetica;">
     <div class="title">
-            <h1 style="text-align:center;">Create an Album</h1>
+            <h1>Create an Album</h1>
             <form method="post" action="{{ url_for('create_album') }}">
-                <label for="album" style="align-content: center">Album name:</label>
+                <label for="album" style="align-content: center">Album Name:</label>
                 <input type="text" name="name" /><br />
                 <label for="date_creation">Please enter your date as YYYY-MM-DD:</label>
                 <input type="text" name="date_creation" /><br />

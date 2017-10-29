@@ -1,14 +1,16 @@
 <!DOCTYPE html>
 {% if message %}
-  <h4>{{message}}!</h4>
+  <h2 style="font-family: Helvetica">{{message}}!</h2>
 {% endif %}
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <title>Photos</title>
 </head>
+
 <body>
-<p><a href='/deletePhoto'>Delete Photo By Photo ID</a></p>
+
 {% if photos %}
     <ul>
     {% for photo in photos %}
@@ -19,11 +21,33 @@
     {% endfor %}
     </ul>
 {% endif %}
-<li><a href='/tag'>Add Tag</a></li>
-<li><a href='/showComment'>See Comment</a></li>
-<li><a href='/comment'>Comment</a></li>
-<li><a href='/like'>Like</a></li>
-<li><a href='/'>Home</a></li>
+
+<pre>
+
+
+</pre>
+
+<div class="title">
+    <h3 style="font-family: Helvetica">Delete Photos</h3>
+    <form method="post" action="{{ url_for('delete_photo') }}">
+        <label for="delete" style="font-family: Helvetica">Enter ID Of Photo You Want to Delete:</label>
+        <input type="text" name="delete" /><br />
+        <input type = "submit" value="Delete" />
+    </form>
+</div>
+<pre>
+
+
+
+</pre>
+
+<ul style="font-family: Helvetica;font-size: small">
+    <li><a href='/tag'>Add Tag</a></li>
+    <li><a href='/showComment'>See Comment</a></li>
+    <li><a href='/comment'>Comment</a></li>
+    <li><a href='/like'>Like</a></li>
+    <li><a href='/'>Home</a></li>
+</ul>
 
 </body>
 

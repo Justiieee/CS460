@@ -1,13 +1,13 @@
 <!DOCTYPE html>
 {% if message %}
-  <h4>{{message}}!</h4>
+  <h1>{{message}}</h1>
 {% endif %}
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <title>Show Album</title>
 </head>
-<body style="font-family:Helvetica;" background="https://68.media.tumblr.com/c9e3514cd7255466bc23cfa8c06f63be/tumblr_inline_n2316gluDV1spxw4r.jpg">
+<body style="font-family:Helvetica;">
 
 <table width = "400">
     <tr align="left">
@@ -24,16 +24,41 @@
     </tr>
     {% endfor %}
 </table>
-<p><a href='/deleteAlbum'>Delete Album by Album ID</a></p>
-    <div class="title">
-            <h1>Look Photos</h1>
-            <form method="post" action="{{ url_for('photo') }}">
-                <label for="album_id">Enter Album ID</label>
-                <input type="text" name="album_id" /><br />
-                <input type = "submit" value="Look" />
-            </form>
-    </div>
 
-<li><a href='/'>Home</a></li>
+<pre>
+
+
+</pre>
+
+<div class="title">
+    <h3>Delete Album</h3>
+    <form method="post" action="{{ url_for('delete_album') }}">
+        <label for="delete_album">Enter ID Of Album You Want to Delete:</label>
+        <input type="text" name="delete_album" /><br />
+        <input type = "submit" value="Delete" />
+    </form>
+</div>
+
+<pre>
+
+
+</pre>
+
+<div class="title">
+    <h3>Look Photos </h3>
+    <form method="post" action="{{ url_for('photo') }}">
+        <label for="album_id" style="font-size: small">Enter Album ID</label>
+        <input type="text" name="album_id" /><br />
+        <input type = "submit" value="Look" />
+    </form>
+</div>
+
+<pre>
+
+
+</pre>
+
+<a href='/' style="font-size: small">Home</a>
+
 </body>
 </html>

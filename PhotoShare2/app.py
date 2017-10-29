@@ -24,7 +24,7 @@ app.secret_key = 'super secret string'  # Change this!
 
 # These will need to be changed according to your creditionals
 app.config['MYSQL_DATABASE_USER'] = 'root'
-app.config['MYSQL_DATABASE_PASSWORD'] = '950205aa'
+app.config['MYSQL_DATABASE_PASSWORD'] = '960212'
 app.config['MYSQL_DATABASE_DB'] = 'photoshare'
 app.config['MYSQL_DATABASE_HOST'] = 'localhost'
 mysql.init_app(app)
@@ -221,7 +221,7 @@ def create_album():
             print("INSERT INTO Album (name, date_creation, user_id) VALUES ('{0}', '{1}', '{2}')".format(aname, date_creation, uid))
             cursor.execute("INSERT INTO Album (name, date_creation, user_id) VALUES ('{0}', '{1}', '{2}')".format(aname, date_creation, uid))
             conn.commit()
-            return render_template('hello.html', name=flask_login.current_user.id, message='Album Created!')
+            return render_template('showAlbum.html', name=flask_login.current_user.id, message='Album Created!')
         else:
             return render_template('createAlbum.html', name=flask_login.current_user.id, message='Album Existed!')
     else:
@@ -235,7 +235,7 @@ def show_album():
     print(uid)
     albumlist = getUserAlbum(uid)
     print(albumlist)
-    return render_template('showAlbum.html', message = 'Here is your albumlist', albums = albumlist)
+    return render_template('showAlbum.html', message = 'Here is your Album list', albums = albumlist)
 
 @app.route('/guest', methods = ['GET'])
 def guest():
@@ -291,24 +291,24 @@ def delete_photo():
     if request.method == 'POST':
         pid = request.form.get('delete')
         uid = getUserIdFromEmail(flask_login.current_user.id)
-        print pid
+
         test = isPhotoYourself(uid, pid)
         if test:
             cursor = conn.cursor()
             cursor.execute("DELETE FROM Photo WHERE photo_id = '{0}'".format(pid))
             conn.commit()
-            return render_template('hello.html', message = 'Photo Deleted')
+            return render_template('photo.html', message = 'Photo Deleted')
         else:
-            return render_template('deletePhoto', message = 'You Can Only Delete Your Photos')
+            return render_template('photo.html', message = 'You Can Only Delete Your Photos')
     else:
-        return render_template('deletePhoto.html')
+        return render_template('photo.html')
 
 @app.route('/deleteAlbum', methods=['GET', 'POST'])
 @flask_login.login_required
 def delete_album():
     if request.method == 'POST':
         aid = request.form.get('delete_album')
-        print aid
+        #print aid
         uid = getUserIdFromEmail(flask_login.current_user.id)
         test = isAlbumYourself(uid, aid)
         if test:
@@ -317,9 +317,9 @@ def delete_album():
             conn.commit()
             return render_template('hello.html', message='Album Deleted')
         else:
-            return render_template('deleteAlbum', message = 'You Can Only Delete Your Album')
+            return render_template('showAlbum.html', message = 'You Can Only Delete Your Album')
     else:
-        return render_template('deleteAlbum.html')
+        return render_template('showAlbum.html')
 
 @app.route('/comment', methods=['GET', 'POST'])
 def comment():
@@ -327,11 +327,11 @@ def comment():
         content = request.form.get('content')
         date_creation = request.form.get('date_creation')
         uid = getUserIdFromEmail(flask_login.current_user.id)
-        print uid
+        #print uid
         pid = request.form.get('photo_id')
-        print pid
+        #print pid
         test = isPhotoYourself(uid,pid)
-        print(test)
+        #print(test)
         if not test:
             cursor=conn.cursor()
             cursor.execute("INSERT INTO Comment (content, date_creation, user_id, photo_id) VALUES ('{0}','{1}', '{2}', '{3}')".format(content, date_creation, uid, pid))
@@ -347,7 +347,7 @@ def show_comment():
     if request.method == 'POST':
         pid = request.form.get('photo_id')
         commentList = getCommentFromPhotoId(pid)
-        print commentList
+        #print commentList
         return render_template('showComment.html', message = 'Here are the comments', comments = commentList)
     else:
         return render_template('showComment.html')
@@ -359,8 +359,8 @@ def liketable():
         pid = request.form.get('photo_id')
         date_creation = request.form.get('date_creation')
         uid = getUserIdFromEmail(flask_login.current_user.id)
-        print uid
-        print pid
+        #print uid
+        #print pid
         test = isLikeExist(uid, pid)
         if not test:
             cursor = conn.cursor()
@@ -391,10 +391,6 @@ def showLike():
     else:
         return render_template('showLike.html')
 
-
-
-
-
 @app.route('/tag', methods=['GET', 'POST'])
 @flask_login.login_required
 def tag():
@@ -412,6 +408,7 @@ def tag():
             return render_template('tag.html', message='Photo does not exist')
     else:
         return render_template('tag.html')
+
 
 @app.route('/searchTag',methods=['GET', 'POST'])
 def searchTag():
@@ -595,7 +592,7 @@ def getCountForUserLike(pid):
 @app.route('/profile')
 @flask_login.login_required
 def protected():
-    return render_template('hello.html', name=flask_login.current_user.id, message="Here's your profile")
+    return render_template('profile.html', name=flask_login.current_user.id, message="Here's your profile")
 
 
 # begin photo uploading code
@@ -612,11 +609,10 @@ def allowed_file(filename):
 
 # end photo uploading code
 
-
 # default page
 @app.route("/", methods=['GET'])
 def hello():
-    return render_template('hello.html', message='Welecome to Photoshare')
+    return render_template('hello.html', message='Welcome to Photoshare')
 
 
 if __name__ == "__main__":
