@@ -5,6 +5,10 @@
   <h2 style="font-family: Helvetica">{{message}}</h2>
 {% endif %}
 
+{% if name %}
+  <h2 style="font-family: Helvetica">Hello {{ name }}!</h2>
+{% endif %}
+
 <head>
     <meta charset="UTF-8">
     <title>profile</title>
@@ -13,8 +17,11 @@
 <ul style="font-family: Helvetica">
     <li><a href='/upload'>Upload a photo</a> </li>
     <li><a href='/friendList'>FriendList</a></li>
-    <li><a href='/createAlbum'>Albums</a> </li>
+    <li><a href='/showAlbum'>Albums</a> </li>
     <li><a href='/userActivity'>User Activity</a></li>
+    <li><a href='/searchComments'>Search Comments</a></li>
+    <li><a href='/friendsNameRecommand'>See Friends Recommand</a></li>
+    <li><a href='/mayalsolike'>You May Also Like</a></li>
     <li><a href='/'>Home</a></li>
     <li><a href='/logout'>Logout</a></li>
 </ul>

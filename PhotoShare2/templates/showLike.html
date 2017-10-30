@@ -14,15 +14,17 @@
             </form>
 </div>
 
-<p>Count of Likes</p>
+
 {% if count %}
+    <p>Count of Likes</p>
     {% for c in count %}
         <li>{{ c[0] }}</li>
     {% endfor %}
 {% endif %}
 
-<p>Users Who Like</p>
+
 {% if liketable %}
+    <p>Users Who Like</p>
     {% for likes in liketable %}
         <li>{{ likes[0] }}</li>
     {% endfor %}

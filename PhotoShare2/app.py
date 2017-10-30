@@ -9,6 +9,9 @@
 # see links for further understanding
 ###################################################
 
+#need to revise: 1. can not add yourself as a friend; 2.leave comment when you are not logged in;
+
+
 import flask
 from flask import Flask, Response, request, render_template, redirect, url_for
 from flaskext.mysql import MySQL
@@ -24,7 +27,7 @@ app.secret_key = 'super secret string'  # Change this!
 
 # These will need to be changed according to your creditionals
 app.config['MYSQL_DATABASE_USER'] = 'root'
-app.config['MYSQL_DATABASE_PASSWORD'] = '960212'
+app.config['MYSQL_DATABASE_PASSWORD'] = '950205aa'
 app.config['MYSQL_DATABASE_DB'] = 'photoshare'
 app.config['MYSQL_DATABASE_HOST'] = 'localhost'
 mysql.init_app(app)
@@ -168,7 +171,7 @@ def add_friend():
         except:
             #print("It is not a user.")
             #return flask.redirect(flask.url_for('add_friend'))
-            return render_template('friends.html', name=flask_login.current_user.id, message='Not a user')
+            return render_template('friendList.html', name=flask_login.current_user.id, message='Not a user')
 
             #return render_template('hello.html', name=flask_login.current_user.id, message='Search another friend')
         #test1 = isaUser(email)
@@ -183,13 +186,13 @@ def add_friend():
             cursor.execute(
                 "INSERT INTO Friendship (user_id1, user_id2) VALUES ('{0}', '{1}')".format(uid2, uid1))
             conn.commit()
-            return render_template('hello.html', name=flask_login.current_user.id, message='Friend Added')
+            return render_template('profile.html', name=flask_login.current_user.id, message='Friend Added')
         else:
-            return render_template('friends.html', name=flask_login.current_user.id, message='Already friended. Search for another friend')
+            return render_template('profile.html', name=flask_login.current_user.id, message='Already friended. Search for another friend')
         #else:
             #return render_template('hello.html', name=flask_login.current_user.id, message='He/She is not a user! Please invite you friend')
     else:
-        return render_template('friends.html')
+        return render_template('profile.html')
 
 @app.route('/friendList', methods=['GET'])
 @flask_login.login_required
@@ -314,6 +317,7 @@ def delete_album():
         if test:
             cursor = conn.cursor()
             cursor.execute("DELETE FROM Album WHERE album_id = '{0}'".format(aid))
+            cursor.execute("DELETE FROM Photo WHERE album_id = '{0}'".format(aid))
             conn.commit()
             return render_template('hello.html', message='Album Deleted')
         else:
@@ -427,10 +431,23 @@ def searchTag():
     else:
         return render_template('searchTag.html')
 
-
+@app.route('/searchComments', methods = ['GET', 'POST'])
+def searchComments():
+    if request.method == 'POST':
+        content = request.form.get('content')
+        test = isCommentExist(content)
+        if test:
+            userList = getAllUserFromComment(content)
+            print(userList)
+            return render_template('searchComments.html', message = 'Users who has this comment', comments = userList)
+        else:
+            return render_template('searchComments.html', message = 'Comment does not exist')
+    else:
+        return render_template('searchComments.html')
 
 
 @app.route('/seeYourPhoto',methods=['GET', 'POST'])
+@flask_login.login_required
 def seeYourPhoto():
     if request.method == 'POST':
         hashtag = request.form.get('hashtag')
@@ -439,6 +456,70 @@ def seeYourPhoto():
         return render_template('seeYourPhoto.html', message = 'Here are your photos for this tag', photos = photoList)
     else:
         return render_template('seeAllPhoto.html')
+
+@app.route('/top10', methods = ['GET'])
+def top10Users():
+    top10List = getTop10()
+    print top10List
+    result = []
+    for i in top10List:
+        cursor = conn.cursor()
+        cursor.execute("SELECT fname, lname, user_id FROM User WHERE user_id = '{0}'".format(i))
+        result.append(cursor.fetchone())
+    return render_template('top10.html', message = 'Here is Top 10 Users', users = result)
+
+@app.route('/mayalsolike', methods = ['GET'])
+@flask_login.login_required
+def mayalsolike():
+    uid = getUserIdFromEmail(flask_login.current_user.id)
+    photolist = allphotosfromfivetag(uid)
+    result = []
+    for i in photolist:
+        cursor = conn.cursor()
+        cursor.execute("SELECT photo_id, COUNT(photo_id) FROM Associate WHERE photo_id = '{0}' and hashtag = '{1}' or hashtag = '{2}' or hashtag = '{3}' or hashtag='{4}' or hashtag='{5}' GROUP BY photo_id".format(i,top5[0],top5[1],top5[2],top5[3],top5[4]))
+        result.append(cursor.fetchone())
+    sortresult = sorted(result, key = getKey, reverse = True)
+    highest = []
+    for a in len(sortresult):
+        if (a+1) == len(sortresult):
+            highest.append(sortresult[a][0])
+        elif sortresult[a][1] > sortresult[a+1][1]:
+            highest.append(sortresult[a][0])
+        else:
+            number = getnumberoftag(sortresult[a][1])
+            number2 = getnumberoftag(sortresult[a+1][1])
+            if number>number2:
+                highest.append(sortresult[a][0])
+            else:
+                highest.append(sortresult[a+1][0])
+    return render_template('mayalsolike.html', message = 'Here is you may also like', photolists = highest)
+
+
+@app.route('/friendsNameRecommand', methods = ['GET'])
+@flask_login.login_required
+def friendsNameRecommand():
+    friendsName = friendsRecommand()
+    print friendsName
+    result =[]
+    for i in friendsName:
+        cursor=conn.cursor()
+        cursor.execute("SELECT fname, lname, user_id FROM User WHERE user_id ='{0}'".format(i))
+        result.append(cursor.fetchone())
+    return render_template('friendsNameRecommand.html', message = 'Here is your recommanded', friends = result)
+
+
+
+#get friend id recommanded
+def friendsRecommand():
+    uid=getUserIdFromEmail(flask_login.current_user.id)
+    friendIDCountList = sorted(getRecommandFriend(uid),key =getKey, reverse=True)
+    #test if is friends:
+    friendIDList = []
+    for i in friendIDCountList:
+        if not isaFriend(i[0],uid):
+            friendIDList.append(i[0])
+    return friendIDList
+
 
 
 #small method
@@ -508,6 +589,11 @@ def getAllPhotoFromTag(hashtag):
     cursor.execute("SELECT imgdata, A.photo_id, caption FROM Photo P, Associate A WHERE P.photo_id = A.photo_id and hashtag = '{0}'".format(hashtag))
     return cursor.fetchall()
 
+def getAllUserFromComment(content):
+    cursor=conn.cursor()
+    cursor.execute("SELECT U.user_id, Count(comment_id) FROM User U, Comment C WHERE C.user_id = U.user_id and content = '{0}' GROUP BY U.user_id ORDER BY COUNT(comment_id) DESC".format(content))
+    return cursor.fetchall()
+
 
 def isEmailUnique(email):
     # use this to check if a email has already been registered
@@ -573,6 +659,13 @@ def isTagExist(hashtag):
     else:
         return False
 
+def isCommentExist(content):
+    cursor=conn.cursor()
+    if cursor.execute("SELECT content FROM Comment WHERE content = '{0}'".format(content)):
+        return True
+    else:
+        return False
+
 def getCountLike(pid):
     cursor=conn.cursor()
     cursor.execute("SELECT photo_id, COUNT(user_id) FROM Liketable GROUP BY photo_id")
@@ -586,6 +679,77 @@ def getUserIdForLike(pid):
 def getCountForUserLike(pid):
     cursor=conn.cursor()
     cursor.execute("SELECT COUNT(user_id) FROM Liketable WHERE photo_id = '{0}'".format(pid))
+    return cursor.fetchall()
+
+def getUserContribution():
+    usercontribution = []
+    cursor= conn.cursor()
+    cursor.execute("SELECT user_id, COUNT(comment_id) FROM Comment GROUP BY user_id")
+    for a in cursor:
+        usercontribution.append([a[0], a[1]])
+    newcursor = conn.cursor()
+    newcursor.execute("SELECT user_id, COUNT(photo_id) FROM Photo GROUP BY user_id")
+    for b in newcursor:
+        for c in usercontribution:
+            if b[0] == c[0]:
+                c[1] = c[1] + b[1]
+            else:
+                c[1] = c[1]
+    return usercontribution
+
+def getKey(elem):
+    return elem[1]
+
+def getTop10():
+    usercontribution = getUserContribution()
+    top10 = []
+    orderUsers = sorted(usercontribution, key = getKey, reverse = True)
+    if len(orderUsers) <= 10:
+        for a in orderUsers:
+            top10.append(a[0])
+        return top10
+    else:
+        result = orderUsers[0:10]
+        for b in result:
+            top10.append(b[0])
+        return top10
+
+def userTag(uid):
+    cursor = conn.cursor()
+    cursor.execute("SELECT hashtag, COUNT(hashtag) FROM Associate A, Photo P WHERE A.photo_id=P.photo_id and P.user_id = '{0}' GROUP BY hashtag".format(uid))
+    return cursor.fetchall()
+
+
+def topfivetag(uid):
+    taglist = userTag(uid)
+    top5 = []
+    orderTag = sorted(taglist, key = getKey, reverse = True)
+    if len(orderTag) <= 5:
+        for x in orderTag:
+            top5.append(x[0])
+        return top5
+    else:
+        result = orderTag[0:5]
+        for y in result:
+            top5.append(y[0])
+        return top5
+
+def allphotosfromfivetag(uid):
+    fivetag = topfivetag(uid)
+    allphoto = []
+    for i in fivetag:
+        allphoto.append(getAllPhotoFromTag(i))
+    return allphoto
+
+def getnumberoftag(pid):
+    cursor = conn.cursor()
+    cursor.execute("SELECT COUNT(photo_id) FROM Associate WHERE photo_id = '{0}'".format(pid))
+    return cursor.fetchall()
+
+#get friend with common friend, not test if its friends
+def getRecommandFriend(uid):
+    cursor=conn.cursor()
+    cursor.execute("SELECT F2.user_id2, COUNT(F2.user_id2) FROM Friendship F1, Friendship F2 WHERE F1.user_id1 = F2.user_id1 AND F1.user_id2 <> F2.user_id2 AND F1.user_id2 = '{0}' GROUP BY F2.user_id2".format(uid))
     return cursor.fetchall()
 # end login code
 

@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Friends Recommand</title>
+</head>
+<body>
+{% if friends %}
+<table width = "400">
+    <tr align="left">
+        <th>User ID</th>
+        <th>First Name</th>
+        <th>Last Name</th>
+    </tr>
+
+    {% for friend in friends %}
+    <tr align="left">
+        <td>{{ friend[2] }}</td>
+        <td>{{ friend[0] }}</td>
+        <td>{{ friend[1] }}</td>
+    </tr>
+    {% endfor %}
+</table>
+{% endif %}
+</body>
+</html>

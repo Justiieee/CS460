@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>You May Also Like</title>
+</head>
+<body>
+{% if photolists %}
+    <ul>
+    {% for photolist in photolists %}
+        <li>{{photolist[0]}}<br>
+        <img src='data:image/png;base64, {{photo[0]}}'/></li>
+
+    {% endfor %}
+    </ul>
+{% endif %}
+</body>
+</html>
