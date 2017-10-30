@@ -24,12 +24,23 @@
 
 
 {% if liketable %}
-    <p>Users Who Like</p>
-    {% for likes in liketable %}
-        <li>{{ likes[0] }}</li>
-    {% endfor %}
-{% endif %}
+    <p>User Who Likes</p>
+<table width = "400">
+    <tr align="left">
+        <th>User ID</th>
+        <th>First Name</th>
+        <th>Last Name</th>
+    </tr>
 
+    {% for likes in liketable %}
+    <tr align="left">
+        <td>{{ likes[0] }}</td>
+        <td>{{ likes[1] }}</td>
+        <td>{{ likes[2] }}</td>
+    </tr>
+    {% endfor %}
+</table>
+{% endif %}
 
 
 <li><a href='/'>Home</a></li>

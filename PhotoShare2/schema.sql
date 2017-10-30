@@ -46,7 +46,7 @@ CREATE TABLE Comment (
     comment_id int AUTO_INCREMENT not null,
     content varchar(255) not null,
     date_creation date not null,
-    user_id int not null,
+    user_id int,
     photo_id int not null,
     PRIMARY KEY (comment_id),
     FOREIGN KEY (user_id) REFERENCES User(user_id) ON DELETE CASCADE,
@@ -62,15 +62,10 @@ CREATE TABLE Liketable (
     FOREIGN KEY (photo_id) REFERENCES Photo(photo_id) ON DELETE CASCADE
 );
 
-CREATE TABLE Tag (
-    hashtag varchar(40) not null,
-    PRIMARY KEY (hashtag)
-);
 
 CREATE TABLE Associate (
     photo_id int not null,
     hashtag varchar(40) not null,
     PRIMARY KEY (photo_id, hashtag),
-    FOREIGN KEY (hashtag) REFERENCES Tag(hashtag) ON DELETE CASCADE,
     FOREIGN KEY (photo_id) REFERENCES Photo(photo_id) ON DELETE CASCADE
 );

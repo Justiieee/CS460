@@ -169,28 +169,24 @@ def add_friend():
             uid1 = getUserIdFromEmail(flask_login.current_user.id)
             uid2 = getUserIdFromEmail(email)
         except:
-            #print("It is not a user.")
-            #return flask.redirect(flask.url_for('add_friend'))
             return render_template('friendList.html', name=flask_login.current_user.id, message='Not a user')
 
-            #return render_template('hello.html', name=flask_login.current_user.id, message='Search another friend')
-        #test1 = isaUser(email)
-        #if test1:
-        cursor = conn.cursor()
-        test2 = isaFriend(uid1, uid2)
-        print(test2)
-        if not test2:
-            print("INSERT INTO Friendship (user_id1, user_id2) VALUES ('{0}', '{1}')".format(uid1, uid2))
-            cursor.execute(
-                "INSERT INTO Friendship (user_id1, user_id2) VALUES ('{0}', '{1}')".format(uid1, uid2))
-            cursor.execute(
-                "INSERT INTO Friendship (user_id1, user_id2) VALUES ('{0}', '{1}')".format(uid2, uid1))
-            conn.commit()
-            return render_template('profile.html', name=flask_login.current_user.id, message='Friend Added')
+        if uid1 == uid2:
+            return render_template('profile.html', message = 'You cannot Add Youself')
         else:
-            return render_template('profile.html', name=flask_login.current_user.id, message='Already friended. Search for another friend')
-        #else:
-            #return render_template('hello.html', name=flask_login.current_user.id, message='He/She is not a user! Please invite you friend')
+            cursor = conn.cursor()
+            test2 = isaFriend(uid1, uid2)
+            print(test2)
+            if not test2:
+                print("INSERT INTO Friendship (user_id1, user_id2) VALUES ('{0}', '{1}')".format(uid1, uid2))
+                cursor.execute(
+                    "INSERT INTO Friendship (user_id1, user_id2) VALUES ('{0}', '{1}')".format(uid1, uid2))
+                cursor.execute(
+                    "INSERT INTO Friendship (user_id1, user_id2) VALUES ('{0}', '{1}')".format(uid2, uid1))
+                conn.commit()
+                return render_template('profile.html', name=flask_login.current_user.id, message='Friend Added')
+            else:
+                return render_template('profile.html', name=flask_login.current_user.id, message='Already friended. Search for another friend')
     else:
         return render_template('profile.html')
 
@@ -201,8 +197,6 @@ def friend_list():
     print(uid)
     friendlist = getUserFriends(uid)
     print(friendlist)
-    #friendname= getUserNameFromId()
-    #print(friendname)
     return render_template('friendList.html',message = 'Here is your friendlist', friends = friendlist)
 
 
@@ -224,7 +218,7 @@ def create_album():
             print("INSERT INTO Album (name, date_creation, user_id) VALUES ('{0}', '{1}', '{2}')".format(aname, date_creation, uid))
             cursor.execute("INSERT INTO Album (name, date_creation, user_id) VALUES ('{0}', '{1}', '{2}')".format(aname, date_creation, uid))
             conn.commit()
-            return render_template('showAlbum.html', name=flask_login.current_user.id, message='Album Created!')
+            return render_template('profile.html', name=flask_login.current_user.id, message='Album Created!')
         else:
             return render_template('createAlbum.html', name=flask_login.current_user.id, message='Album Existed!')
     else:
@@ -311,7 +305,6 @@ def delete_photo():
 def delete_album():
     if request.method == 'POST':
         aid = request.form.get('delete_album')
-        #print aid
         uid = getUserIdFromEmail(flask_login.current_user.id)
         test = isAlbumYourself(uid, aid)
         if test:
@@ -330,12 +323,14 @@ def comment():
     if request.method == 'POST':
         content = request.form.get('content')
         date_creation = request.form.get('date_creation')
-        uid = getUserIdFromEmail(flask_login.current_user.id)
-        #print uid
         pid = request.form.get('photo_id')
-        #print pid
+        try:
+            uid = getUserIdFromEmail(flask_login.current_user.id)
+        except:
+            cursor =conn.cursor()
+            cursor.execute("INSERT INTO Comment (content, date_creation,photo_id) VALUES ('{0}','{1}', '{2}')".format(content, date_creation, pid))
+            return render_template('hello.html', message = 'Commented Anonymously')
         test = isPhotoYourself(uid,pid)
-        #print(test)
         if not test:
             cursor=conn.cursor()
             cursor.execute("INSERT INTO Comment (content, date_creation, user_id, photo_id) VALUES ('{0}','{1}', '{2}', '{3}')".format(content, date_creation, uid, pid))
@@ -351,7 +346,6 @@ def show_comment():
     if request.method == 'POST':
         pid = request.form.get('photo_id')
         commentList = getCommentFromPhotoId(pid)
-        #print commentList
         return render_template('showComment.html', message = 'Here are the comments', comments = commentList)
     else:
         return render_template('showComment.html')
@@ -363,8 +357,6 @@ def liketable():
         pid = request.form.get('photo_id')
         date_creation = request.form.get('date_creation')
         uid = getUserIdFromEmail(flask_login.current_user.id)
-        #print uid
-        #print pid
         test = isLikeExist(uid, pid)
         if not test:
             cursor = conn.cursor()
@@ -382,15 +374,13 @@ def liketable():
 def showLike():
     if request.method == 'POST':
         pid=request.form.get('photo_id')
-        #count = getCountLike(pid)[1]
-        #print(count)
-        cursor=conn.cursor()
-        likeList=getUserIdForLike(pid)
+        #cursor=conn.cursor()
+        likeList=getUserForLike(pid)
         countList=getCountForUserLike(pid)
         print(countList)
         print(likeList)
 
-        conn.commit()
+        #conn.commit()
         return render_template('showLike.html', message = 'Here is all likers', liketable = likeList, count = countList)
     else:
         return render_template('showLike.html')
@@ -401,13 +391,17 @@ def tag():
     if request.method == 'POST':
         hashtag = request.form.get('hashtag')
         pid = request.form.get('photo_id')
+        uid = getUserIdFromEmail(flask_login.current_user.id)
         test = isPhotoExist(pid)
         if test:
-            cursor = conn.cursor()
-            #cursor.execute("INSERT INTO Tag(hashtag) VALUES ('{0}')".format(hashtag))
-            cursor.execute("INSERT INTO Associate (photo_id, hashtag) VALUES ('{0}','{1}')".format(pid,hashtag))
-            conn.commit()
-            return render_template('tag.html',message='Tag Added')
+            test1 = isPhotoYourself(uid, pid)
+            if test1:
+                cursor = conn.cursor()
+                cursor.execute("INSERT INTO Associate (photo_id, hashtag) VALUES ('{0}','{1}')".format(pid,hashtag))
+                conn.commit()
+                return render_template('tag.html',message='Tag Added')
+            else:
+                return render_template('tag.html', message = 'You Can Only Tag You Own Photos')
         else:
             return render_template('tag.html', message='Photo does not exist')
     else:
@@ -455,7 +449,7 @@ def seeYourPhoto():
         photoList = getYourPhotoFromTag(hashtag, uid)
         return render_template('seeYourPhoto.html', message = 'Here are your photos for this tag', photos = photoList)
     else:
-        return render_template('seeAllPhoto.html')
+        return render_template('profile.html')
 
 @app.route('/top10', methods = ['GET'])
 def top10Users():
@@ -471,28 +465,122 @@ def top10Users():
 @app.route('/mayalsolike', methods = ['GET'])
 @flask_login.login_required
 def mayalsolike():
+    list = mayalsolikeid()
     uid = getUserIdFromEmail(flask_login.current_user.id)
-    photolist = allphotosfromfivetag(uid)
-    result = []
-    for i in photolist:
-        cursor = conn.cursor()
-        cursor.execute("SELECT photo_id, COUNT(photo_id) FROM Associate WHERE photo_id = '{0}' and hashtag = '{1}' or hashtag = '{2}' or hashtag = '{3}' or hashtag='{4}' or hashtag='{5}' GROUP BY photo_id".format(i,top5[0],top5[1],top5[2],top5[3],top5[4]))
-        result.append(cursor.fetchone())
-    sortresult = sorted(result, key = getKey, reverse = True)
-    highest = []
-    for a in len(sortresult):
-        if (a+1) == len(sortresult):
-            highest.append(sortresult[a][0])
-        elif sortresult[a][1] > sortresult[a+1][1]:
-            highest.append(sortresult[a][0])
+    photolist = []
+    for i in list:
+        if not isPhotoYourself(uid,i):
+            photolist.append(i)
+    if photolist ==[]:
+         return render_template('mayalsolike.html', message = 'No recommandation!')
+    else:
+        recommendationlist = []
+        for x in photolist:
+            cursor = conn.cursor()
+            cursor.execute("SELECT imgdata, photo_id, caption FROM Photo WHERE photo_id = '{0}'".format(x))
+            recommendationlist.append(cursor.fetchone())
+        return render_template('mayalsolike.html', message = 'Here is You May Also Like', photos = recommendationlist)
+
+
+def mayalsolikeid():
+    uid = getUserIdFromEmail(flask_login.current_user.id)
+    topfive = topfivetag(uid)
+    resultlist =[]
+    if len(topfive) == 0:
+        return resultlist
+    result = 0
+    for i in topfive:
+        test = checksametag(i,uid)
+        if test:
+            result +=1
+    if result == 0:
+        return resultlist
+    else:
+        if len(topfive) == 5:
+            list1 = photowithfivetags(topfive[0],topfive[1],topfive[2],topfive[3],topfive[4])
+
+            for a in range(len(list1)):
+                if a == len(list1)-1:
+                    resultlist.append(list1[a][0])
+                else:
+                    if list1[a][1] == list1[a+1][1]:
+                        tagnumber1 = getnumberoftag(list1[a][0])
+                        tagnumber2 = getnumberoftag(list1[a+1][0])
+                        if tagnumber1 > tagnumber2:
+                            resultlist.append(list1[a+1][0])
+                        else:
+                            resultlist.append(list1[a][0])
+                    else:
+                        resultlist.append(list1[a][0])
+            return resultlist
+        elif len(topfive) == 4:
+            list1 = photowithfourtags(topfive[0],topfive[1],topfive[2],topfive[3])
+            resultlist = []
+            for a in range(len(list1)):
+                if a == len(list1)-1:
+                    resultlist.append(list1[a][0])
+                else:
+                    if list1[a][1] == list1[a+1][1]:
+                        tagnumber1 = getnumberoftag(list1[a][0])
+                        tagnumber2 = getnumberoftag(list1[a+1][0])
+                        if tagnumber1 > tagnumber2:
+                            resultlist.append(list1[a+1][0])
+                        else:
+                            resultlist.append(list1[a][0])
+                    else:
+                        resultlist.append(list1[a][0])
+            return resultlist
+        elif len(topfive) == 3:
+            list1 = photowiththreetags(topfive[0],topfive[1],topfive[2])
+            resultlist = []
+            for a in range(len(list1)):
+                if a == len(list1)-1:
+                    resultlist.append(list1[a][0])
+                else:
+                    if list1[a][1] == list1[a+1][1]:
+                        tagnumber1 = getnumberoftag(list1[a][0])
+                        tagnumber2 = getnumberoftag(list1[a+1][0])
+                        if tagnumber1 > tagnumber2:
+                            resultlist.append(list1[a+1][0])
+                        else:
+                            resultlist.append(list1[a][0])
+                    else:
+                        resultlist.append(list1[a][0])
+            return resultlist
+        elif len(topfive) == 2:
+            list1 = photowithtwotags(topfive[0],topfive[1])
+            resultlist = []
+            for a in range(len(list1)):
+                if a == len(list1)-1:
+                    resultlist.append(list1[a][0])
+                else:
+                    if list1[a][1] == list1[a+1][1]:
+                        tagnumber1 = getnumberoftag(list1[a][0])
+                        tagnumber2 = getnumberoftag(list1[a+1][0])
+                        if tagnumber1 > tagnumber2:
+                            resultlist.append(list1[a+1][0])
+                        else:
+                            resultlist.append(list1[a][0])
+                    else:
+                        resultlist.append(list1[a][0])
+            return resultlist
         else:
-            number = getnumberoftag(sortresult[a][1])
-            number2 = getnumberoftag(sortresult[a+1][1])
-            if number>number2:
-                highest.append(sortresult[a][0])
-            else:
-                highest.append(sortresult[a+1][0])
-    return render_template('mayalsolike.html', message = 'Here is you may also like', photolists = highest)
+            list1 = photowithonetag(topfive[0])
+            resultlist = []
+            for a in range(len(list1)):
+                if a == len(list1) - 1:
+                    resultlist.append(list1[a][0])
+                else:
+                    if list1[a][1] == list1[a + 1][1]:
+                        tagnumber1 = getnumberoftag(list1[a][0])
+                        tagnumber2 = getnumberoftag(list1[a + 1][0])
+                        if tagnumber1 > tagnumber2:
+                            resultlist.append(list1[a + 1][0])
+                        else:
+                            resultlist.append(list1[a][0])
+                    else:
+                        resultlist.append(list1[a][0])
+            return resultlist
 
 
 @app.route('/friendsNameRecommand', methods = ['GET'])
@@ -507,6 +595,17 @@ def friendsNameRecommand():
         result.append(cursor.fetchone())
     return render_template('friendsNameRecommand.html', message = 'Here is your recommanded', friends = result)
 
+@app.route('/popularTag', methods = ['GET'])
+def popularTags():
+    popTag = getTop5Tag()
+    return render_template('popularTag.html', message = 'Here is the most popular tag', tags = popTag)
+
+@app.route('/eachTag', methods = ['GET'])
+def popularPhotoFromTag():
+    hashtag = request.args['popTag']
+    popPhoto=[]
+    popPhoto += getAllPhotoFromTag(hashtag)
+    return render_template('eachTag.html', message = 'Here is the most popular', photos = popPhoto)
 
 
 #get friend id recommanded
@@ -531,6 +630,11 @@ def getUserPhotos(uid):
 def getPhotoFromAlbumId(aid):
     cursor = conn.cursor()
     cursor.execute("SELECT imgdata, photo_id, caption FROM Photo WHERE album_id = '{0}'".format(aid))
+    return cursor.fetchall()
+
+def getphotoid(uid):
+    cursor = conn.cursor()
+    cursor.execute("SELECT photo_id FROM Photo WHERE user_id = '{0}'".format(uid))
     return cursor.fetchall()
 
 def getUserAlbum(uid):
@@ -594,6 +698,10 @@ def getAllUserFromComment(content):
     cursor.execute("SELECT U.user_id, Count(comment_id) FROM User U, Comment C WHERE C.user_id = U.user_id and content = '{0}' GROUP BY U.user_id ORDER BY COUNT(comment_id) DESC".format(content))
     return cursor.fetchall()
 
+def getTop5Tag():
+    cursor=conn.cursor()
+    cursor.execute("SELECT hashtag FROM Associate GROUP BY hashtag ORDER BY COUNT(hashtag) DESC LIMIT 5")
+    return cursor.fetchall()
 
 def isEmailUnique(email):
     # use this to check if a email has already been registered
@@ -666,14 +774,10 @@ def isCommentExist(content):
     else:
         return False
 
-def getCountLike(pid):
-    cursor=conn.cursor()
-    cursor.execute("SELECT photo_id, COUNT(user_id) FROM Liketable GROUP BY photo_id")
-    return cursor.fetchall()
 
-def getUserIdForLike(pid):
+def getUserForLike(pid):
     cursor=conn.cursor()
-    cursor.execute("SELECT user_id FROM Liketable WHERE photo_id = '{0}'".format(pid))
+    cursor.execute("SELECT U.user_id,fname,lname FROM User U ,Liketable L WHERE U.user_id = L.user_id AND photo_id = '{0}'".format(pid))
     return cursor.fetchall()
 
 def getCountForUserLike(pid):
@@ -734,12 +838,37 @@ def topfivetag(uid):
             top5.append(y[0])
         return top5
 
-def allphotosfromfivetag(uid):
-    fivetag = topfivetag(uid)
-    allphoto = []
-    for i in fivetag:
-        allphoto.append(getAllPhotoFromTag(i))
-    return allphoto
+def photowithfivetags(tag1, tag2, tag3, tag4, tag5):
+    cursor = conn.cursor()
+    cursor.execute("SELECT A.photo_id, COUNT(*), imgdata FROM Associate A, Photo P WHERE A.photo_id = P.photo_id AND hashtag IN('{0}','{1}','{2}','{3}','{4}')GROUP BY A.photo_id ORDER BY COUNT(*) DESC".format(tag1,tag2,tag3,tag4,tag5))
+    return cursor.fetchall()
+
+def photowithfourtags(tag1,tag2,tag3,tag4):
+    cursor = conn.cursor()
+    cursor.execute("SELECT A.photo_id,COUNT(*), imgdata FROM Associate A, Photo P WHERE A.photo_id = P.photo_id AND hashtag IN('{0}','{1}','{2}','{3}')GROUP BY A.photo_id ORDER BY COUNT(*) DESC".format(tag1, tag2, tag3, tag4))
+    return cursor.fetchall()
+
+def photowiththreetags(tag1,tag2,tag3):
+    cursor = conn.cursor()
+    cursor.execute("SELECT A.photo_id,COUNT(*), imgdata FROM Associate A, Photo P WHERE A.photo_id = P.photo_id AND hashtag IN('{0}','{1}','{2}')GROUP BY A.photo_id ORDER BY COUNT(*) DESC".format(tag1, tag2, tag3))
+    return cursor.fetchall()
+
+def photowithtwotags(tag1,tag2):
+    cursor = conn.cursor()
+    cursor.execute("SELECT A.photo_id,COUNT(*), imgdata FROM Associate A, Photo P WHERE A.photo_id = P.photo_id AND hashtag IN('{0}','{1}')GROUP BY A.photo_id ORDER BY COUNT(*) DESC".format(tag1, tag2))
+    return cursor.fetchall()
+
+def photowithonetag(tag1):
+    cursor = conn.cursor()
+    cursor.execute("SELECT A.photo_id,COUNT(*), imgdata FROM Associate A, Photo P WHERE A.photo_id = P.photo_id AND hashtag = '{0}'".format(tag1))
+    return cursor.fetchall()
+
+def checksametag(hashtag, uid):
+    cursor = conn.cursor()
+    if cursor.execute("SELECT * FROM Associate A, Photo P WHERE A.photo_id = P.photo_id AND hashtag = '{0}'AND user_id !='{1}'".format(hashtag, uid)):
+        return True
+    else:
+        return False
 
 def getnumberoftag(pid):
     cursor = conn.cursor()

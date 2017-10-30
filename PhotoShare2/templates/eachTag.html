@@ -1,14 +1,13 @@
 <!DOCTYPE html>
-{% if message %}
-  <h4>{{message}}!</h4>
-{% endif %}
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>See Your Photos From Tag</title>
+    <title>Each Tag</title>
 </head>
-
 <body>
+{%if message%}
+<p style="text-align:center">{{ message }}</p>
+{% endif %}
 
 {% if photos %}
     <ul>
@@ -16,11 +15,9 @@
         <li>{{photo[1]}}<br>
         <li>{{photo[2]}}<br>
         <img src='data:image/png;base64, {{photo[0]}}'/></li>
-
     {% endfor %}
     </ul>
 {% endif %}
 
-<a href='/'>Home</a>
 </body>
 </html>
