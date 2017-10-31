@@ -8,8 +8,7 @@
 # and Flask Offical Tutorial at  http://flask.pocoo.org/docs/0.10/patterns/fileuploads/
 # see links for further understanding
 ###################################################
-
-#need to revise: 1. can not add yourself as a friend; 2.leave comment when you are not logged in;
+# Group Members: Shenyue Wu & Ke Shi
 
 
 import flask
@@ -447,7 +446,12 @@ def seeYourPhoto():
         hashtag = request.form.get('hashtag')
         uid = getUserIdFromEmail(flask_login.current_user.id)
         photoList = getYourPhotoFromTag(hashtag, uid)
-        return render_template('seeYourPhoto.html', message = 'Here are your photos for this tag', photos = photoList)
+        #print photoList
+        if photoList == ():
+            return render_template('seeYourPhoto.html', message = 'You do not have photos associate with this tag')
+        else:
+            return render_template('seeYourPhoto.html',message = 'Here are your photos for this tag', photos=photoList)
+
     else:
         return render_template('profile.html')
 
@@ -605,7 +609,7 @@ def popularPhotoFromTag():
     hashtag = request.args['popTag']
     popPhoto=[]
     popPhoto += getAllPhotoFromTag(hashtag)
-    return render_template('eachTag.html', message = 'Here is the most popular', photos = popPhoto)
+    return render_template('eachTag.html', message = 'Here are photos for this tag', photos = popPhoto)
 
 
 #get friend id recommanded
